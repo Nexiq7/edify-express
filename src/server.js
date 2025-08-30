@@ -32,7 +32,7 @@ app.use(passport.session());
 passport.use(new GoogleStrategy({
      clientID: process.env.GOOGLE_CLIENT_ID,
      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-     callbackURL: "/auth/google/callback",
+     callbackURL: "/api/v1/auth/google/callback",
 }, async (accessToken, refreshToken, profile, done) => {
      try {
           let user = await prisma.user.findUnique({ where: { googleId: profile.id } });
@@ -65,21 +65,21 @@ passport.deserializeUser(async (id, done) => {
      }
 });
 
-app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+app.get("/api/v1/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
-app.get("/auth/google/callback", passport.authenticate("google", {
+app.get("/api/v1/auth/google/callback", passport.authenticate("google", {
      failureRedirect: "/login",
      session: true,
 }), (req, res) => {
      res.redirect(process.env.ORIGIN);
 });
 
-app.get('/profile', (req, res) => {
+app.get('/api/v1/profile', (req, res) => {
      if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
      res.json(req.user);
 });
 
-app.get("/logout", (req, res) => {
+app.get("/api/v1/logout", (req, res) => {
      req.logout(() => {
           res.json({ message: "Logged out successfully" });
      });
