@@ -1,17 +1,10 @@
 import express from 'express';
-import prisma from '../prisma.js';
+import { checkIfUserLikedBoard, createLike, deleteLikeById, getLikeById } from '../controllers/likes.controller.js';
+
 const router = express.Router();
 
-router.post("/likes", async (req, res) => {
-     const { userId, boardId } = req.body;
-     try {
-          const like = await prisma.like.create({
-               data: { userId, boardId },
-          });
-          res.json(like);
-     } catch (err) {
-          res.status(400).json({ error: "Already liked" });
-     }
-});
-
+router.post("/", createLike);
+router.get("/:likeId", getLikeById)
+router.delete("/:likeId", deleteLikeById)
+router.get("/check/:userId/:boardId", checkIfUserLikedBoard);
 export default router;

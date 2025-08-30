@@ -1,29 +1,17 @@
 import express from 'express';
-import prisma from '../prisma.js';
+import { createBoard, deleteBoardById, getAllBoards, getBoardById } from '../controllers/boards.controller.js';
+import { getVideosByBoardId } from '../controllers/videos.controller.js';
+
 const router = express.Router();
 
-router.get('/:boardId', async (req, res) => {
-     const { boardId } = req.params;
-     try {
-          const board = await prisma.board.findUnique({
-               where: { id: boardId },
-               include: { videos: true, user: true },
-          });
-          if (!board) {
-               return res.status(404).json({ error: 'Board not found' });
-          }
-          res.json(board);
-     } catch (err) {
-          res.status(500).json({ error: err.message });
-     }
-});
+router.get('/', getAllBoards);
 
-router.post("/", async (req, res) => {
-     const { title, userId } = req.body;
-     const board = await prisma.board.create({
-          data: { title, userId },
-     });
-     res.json(board);
-});
+router.post("/", createBoard);
+
+router.get('/:boardId', getBoardById);
+
+router.delete('/:boardId', deleteBoardById)
+
+router.get('/:boardId/videos', getVideosByBoardId);
 
 export default router;

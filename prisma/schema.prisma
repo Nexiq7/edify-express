@@ -18,19 +18,20 @@ model User {
 }
 
 model Board {
-  id     Int     @id @default(autoincrement())
-  title  String
-  userId Int
-  user   User    @relation(fields: [userId], references: [id])
-  videos Video[]
-  likes  Like[]
+  id           Int     @id @default(autoincrement())
+  title        String
+  thumbnailUrl String?
+  userId       Int
+  user         User    @relation(fields: [userId], references: [id])
+  videos       Video[]
+  likes        Like[]
 }
 
 model Video {
   id      Int    @id @default(autoincrement())
   url     String
   boardId Int
-  board   Board  @relation(fields: [boardId], references: [id])
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
 }
 
 model Like {
@@ -38,7 +39,7 @@ model Like {
   userId  Int
   boardId Int
   user    User  @relation(fields: [userId], references: [id])
-  board   Board @relation(fields: [boardId], references: [id])
+  board   Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
 
   @@unique([userId, boardId])
 }

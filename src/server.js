@@ -12,17 +12,20 @@ import likesRoutes from './routes/likes.routes.js';
 dotenv.config();
 const app = express();
 
-app.use(cors());
+app.use(cors({
+     origin: process.env.ORIGIN,
+     credentials: true,
+     optionsSuccessStatus: 200,
+}));
+
 app.use(express.json());
 
-// Session setup
 app.use(session({
      secret: process.env.SESSION_SECRET,
      resave: false,
      saveUninitialized: false,
 }));
 
-// Passport setup
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -62,32 +65,33 @@ passport.deserializeUser(async (id, done) => {
      }
 });
 
-// Google Auth routes
 app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
 app.get("/auth/google/callback", passport.authenticate("google", {
      failureRedirect: "/login",
      session: true,
 }), (req, res) => {
-     // Successful authentication
-     res.redirect("/profile");
+     res.redirect(process.env.ORIGIN);
 });
 
 app.get('/profile', (req, res) => {
-     if (!req.isAuthenticated()) return res.redirect('/');
+     if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
      res.json(req.user);
 });
 
 app.get("/logout", (req, res) => {
      req.logout(() => {
-          res.redirect("/");
+          res.json({ message: "Logged out successfully" });
      });
 });
 
 // Routes
-app.use('/api/users', usersRoutes);
-app.use('/api/boards', boardsRoutes);
-app.use('/api/videos', videosRoutes);
-app.use('/api/likes', likesRoutes);
+app.use('/api/v1/users', usersRoutes);
+app.use('/api/v1/boards', boardsRoutes);
+app.use('/api/v1/videos', videosRoutes);
+app.use('/api/v1/likes', likesRoutes);
 
-app.listen(4000, () => console.log("Server running on port 4000"));
+const PORT = process.env.PORT || 4000;
+const HOST = process.env.HOST || 'localhost';
+
+app.listen(PORT, HOST, () => console.log(`Server running on ${HOST}:${PORT}`));

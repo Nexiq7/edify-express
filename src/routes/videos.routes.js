@@ -1,13 +1,9 @@
 import express from 'express';
-import prisma from '../prisma.js';
+import { createVideo, deleteVideoById } from '../controllers/videos.controller.js';
+
 const router = express.Router();
 
-router.post("/videos", async (req, res) => {
-     const { url, boardId } = req.body;
-     const video = await prisma.video.create({
-          data: { url, boardId },
-     });
-     res.json(video);
-});
+router.post("/", createVideo);
+router.delete("/:videoId", deleteVideoById);
 
 export default router;
