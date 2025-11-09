@@ -13,7 +13,7 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-     origin: process.env.ORIGIN,
+     origin: process.env.FRONTEND_URL,
      credentials: true,
      optionsSuccessStatus: 200,
 }));
@@ -32,7 +32,7 @@ app.use(passport.session());
 passport.use(new GoogleStrategy({
      clientID: process.env.GOOGLE_CLIENT_ID,
      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-     callbackURL: `${process.env.ORIGIN}/api/v1/auth/google/callback`,
+     callbackURL: `${process.env.BACKEND_URL}/api/v1/auth/google/callback`,
 }, async (accessToken, refreshToken, profile, done) => {
      try {
           let user = await prisma.user.findUnique({ where: { googleId: profile.id } });
@@ -71,7 +71,7 @@ app.get("/api/v1/auth/google/callback", passport.authenticate("google", {
      failureRedirect: "/login",
      session: true,
 }), (req, res) => {
-     res.redirect(process.env.ORIGIN);
+     res.redirect(process.env.FRONTEND_URL);
 });
 
 app.get('/api/v1/profile', (req, res) => {
